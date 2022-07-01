@@ -12,7 +12,7 @@ export default function Welcome({navigation}) {
       </View>
       <Text style={styles.title}>MathApp</Text>
       <View style={styles.button} >
-        <Text style={styles.buttonText}  onPress={()=>navigation.push('Question')}>Iniciar sesión</Text>
+        <Text style={styles.buttonText}  onPress={()=>navigation.push('Menu')}>Iniciar sesión</Text>
       </View>
       <StatusBar style="auto" />
     </View>
