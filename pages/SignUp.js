@@ -1,30 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Button, Image, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Input } from 'react-native-elements';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { useEffect, useState } from 'react';
+import { createUserWithEmailAndPassword, getAuth} from 'firebase/auth';
+import { useState } from 'react';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 
-export default function Welcome({ navigation }) {
+export default function SingUp({ navigation }) {
 
   const [user, setUser] = useState(null)
   const [password, setPassword] = useState(null)
   const auth = getAuth();
+  const db = getFirestore();
 
-  function singIn() {
-    signInWithEmailAndPassword(auth, user, password)
-      .then((res) => navigation.push('Home'))
+  function createUser() {
+    createUserWithEmailAndPassword(auth, user, password)
+      .then(async (res) => {
+        const document = doc(db, 'users/' + res.user.uid)
+        await setDoc(document, {
+          email: user,
+          password: password,
+          score: 0,
+          currentLevel: 1
+        });
+        Alert.alert('Usuario creado! 🙌', '', [
+          { text: "OK", onPress: () => navigation.pop() }
+        ])
+      })
       .catch(error => console.log('error', error))
   }
 
 
   return (
     <View style={styles.container}>
-      <View style={styles.logo}>
-        <Image
-          source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Deus_mathematics.png' }}
-          style={{ width: 150, height: 150 }}
-        />
-      </View>
       <Text style={styles.title}>MathApp</Text>
       <Input
         placeholder='Correo'
@@ -38,10 +45,9 @@ export default function Welcome({ navigation }) {
         secureTextEntry={true}
       />
 
-      <TouchableOpacity style={styles.button} onPress={singIn} >
-        <Text style={styles.buttonText} >Iniciar sesión</Text>
+      <TouchableOpacity onPress={createUser} style={styles.button} >
+        <Text style={styles.buttonText}>Crear Usuario</Text>
       </TouchableOpacity>
-      <Text style={styles.singUpButton} onPress={()=>navigation.push('SingUp')}>Registrase</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -83,10 +89,5 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 20
-  },
-  singUpButton:{
-    fontSize:16,
-    marginTop:20,
-    textDecorationLine:'underline'
   }
 });
