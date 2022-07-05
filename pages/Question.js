@@ -1,18 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc, getFirestore, setDoc, updateDoc } from 'firebase/firestore';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, Button, Image, Alert, Easing } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
-export default function Question() {
+export default function Question({ route, navigation }) {
 
-    const [time, setTime] = useState(100);
+    const question = route.params
+    const initialTime = 20
+    const [time, setTime] = useState(initialTime);
+    const [user, setUser] = useState(null)
     const timerRef = useRef(time);
+    const db = getFirestore();
+    const auth = getAuth();
 
     useEffect(() => {
         const timerId = setInterval(() => {
             timerRef.current -= 1;
             if (timerRef.current < 0) {
                 clearInterval(timerId);
+                Alert.alert('Se ha aabado el tiempo! 🙊', 'Intentalo de nuevo', [
+                    { text: "OK", onPress: () => navigation.pop() }
+                ])
             } else {
                 setTime(timerRef.current);
             }
@@ -21,14 +31,48 @@ export default function Question() {
             clearInterval(timerId);
         };
     }, []);
+
+    useEffect(() => {
+        getUser()
+    }, [])
+
+    const submitAnswer = (id) => {
+        if (question.options[id].answer) {
+            setLevelAndScore()
+            Alert.alert('Respuesta correcta! 😎', '', [
+                { text: "OK", onPress: () => navigation.pop() }
+            ])
+        } else {
+            Alert.alert('Respuesta incorrecta ☹️ \nintentalo de nuevo', '', [
+                { text: "OK", onPress: () => navigation.pop() }])
+        }
+    }
+
+    async function getUser() {
+        const document = doc(db, 'users/', auth.currentUser.uid)
+        const docSnap = await getDoc(document);
+        if (docSnap.exists()) {
+            setUser(docSnap.data())
+        } else {
+            console.log("No such document!");
+        }
+    }
+
+    async function setLevelAndScore() {
+        const document = doc(db, 'users/' + auth.currentUser.uid)
+        await updateDoc(document, {
+            score: user.score + (time * 100) / initialTime,
+            currentLevel: question.id + 1
+        });
+    }
     return (
         <View style={styles.container}>
             <AnimatedCircularProgress
                 size={200}
                 width={20}
-                fill={time}
-                tintColor="#00e0ff"
-                backgroundColor="#3d5875">
+                fill={(time * 100) / initialTime}
+                tintColor={question.color}
+                backgroundColor='black'>
                 {
                     (fill) => (
                         <View>
@@ -39,24 +83,24 @@ export default function Question() {
             </AnimatedCircularProgress>
             <View style={styles.center}>
                 <Text style={styles.subtitle}>Elige la opción correcta</Text>
-                <Text style={styles.title}>12x + 15x+ 3x</Text>
+                <Text style={styles.title}>{question.problem}</Text>
             </View>
             <View>
                 <View style={styles.flex}>
-                    <View style={[styles.button, styles.blue]}>
-                        <Text style={styles.text}>Option 1</Text>
-                    </View>
-                    <View style={[styles.button, styles.green]}>
-                        <Text style={styles.text}>Option 2</Text>
-                    </View>
+                    <TouchableOpacity onPress={() => submitAnswer(0)} style={[styles.button, styles.blue]}>
+                        <Text style={styles.text}>{question.options[0].value}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => submitAnswer(1)} style={[styles.button, styles.green]}>
+                        <Text style={styles.text}>{question.options[1].value}</Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.flex}>
-                    <View style={[styles.button, styles.red]}>
-                        <Text style={styles.text}>Option 3</Text>
-                    </View>
-                    <View style={[styles.button, styles.yellow]}>
-                        <Text style={styles.text}>Option 4</Text>
-                    </View>
+                    <TouchableOpacity onPress={() => submitAnswer(2)} style={[styles.button, styles.red]}>
+                        <Text style={styles.text}>{question.options[2].value}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => submitAnswer(3)} style={[styles.button, styles.yellow]}>
+                        <Text style={styles.text}>{question.options[3].value}</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <StatusBar style="auto" />
@@ -72,7 +116,8 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         justifyContent: 'space-between',
         width: '100%',
-        marginTop: 20
+        paddingTop: 20,
+        backgroundColor: 'white'
     },
     elipse: {
         width: '100%',
@@ -92,16 +137,16 @@ const styles = StyleSheet.create({
         display: 'flex'
     },
     blue: {
-        backgroundColor: '#2774FA'
+        backgroundColor: '#3498DB'
     },
     red: {
-        backgroundColor: '#228BED'
+        backgroundColor: '#E74C3C'
     },
     green: {
-        backgroundColor: '#228BED'
+        backgroundColor: '#2ECC71'
     },
     yellow: {
-        backgroundColor: '#2774FA'
+        backgroundColor: '#F1C40F'
     },
     timerBar: {
         width: '80%',
@@ -129,6 +174,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     text: {
-        color: 'white'
+        color: 'white',
+        textAlign: 'center',
+        alignItems: 'center',
+        fontSize: 22,
     }
 });
