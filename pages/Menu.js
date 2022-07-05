@@ -1,35 +1,56 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView, View, FlatList, StyleSheet, Text, StatusBar, Button } from 'react-native';
-import {getFirestore, collection, doc, getDoc} from 'firebase/firestore'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
+import { getAuth } from 'firebase/auth';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Menu({ navigation }) {
     const [levels, setLevels] = useState([])
+    const [user, setUser] = useState([])
     const db = getFirestore();
-    
+    const auth = getAuth();
+
+
     async function getLevels() {
-         const document = doc(db,'levels/b0UMrsGPjuZyBtI3ha1p/')
-         const docSnap = await getDoc(document);
-         if (docSnap.exists()) {
+        const document = doc(db, 'levels/b0UMrsGPjuZyBtI3ha1p/')
+        const docSnap = await getDoc(document);
+        if (docSnap.exists()) {
             setLevels(docSnap.data().levels)
-          } else {
+        } else {
             console.log("No such document!");
-          }
+        }
     }
 
-    useEffect(() => {
-        getLevels()
-    }, [])
+    async function getUser() {
+        const document = doc(db, 'users/', auth.currentUser.uid)
+        const docSnap = await getDoc(document);
+        if (docSnap.exists()) {
+            setUser(docSnap.data())
+        } else {
+            console.log("No such document!");
+        }
+    }
+
+    
+    useFocusEffect(
+        useCallback(() => {
+            getUser()
+            getLevels()
+        }, [])
+      )
 
     const Item = ({ item }) => {
         const { problem, level, color } = item
-        return <View style={[styles.item, { backgroundColor: color }]}>
+        return <View style={[styles.item, { backgroundColor: color, opacity: item.id >= user.currentLevel ? 1:0.3 }]}>
             <View>
                 <Text style={styles.title}>{problem}</Text>
                 <Text style={styles.subtitle}>{level}</Text>
             </View>
-            <View style={styles.button}>
-                <Button title='Jugar' color='black' onPress={() => navigation.push('Question', item)} style={styles.buttonText}>Jugar</Button>
-            </View>
+            {item.id >= user.currentLevel &&
+                <View style={styles.button}>
+                    <Button title='Jugar' color='black' onPress={() => navigation.push('Question', item)} style={styles.buttonText}>Jugar</Button>
+                </View>
+            }
         </View>
     };
 
@@ -83,4 +104,4 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 20,
     }
-});
+})

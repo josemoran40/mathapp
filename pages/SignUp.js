@@ -1,9 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
 import { Input } from 'react-native-elements';
-import { createUserWithEmailAndPassword, getAuth} from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { useState } from 'react';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { Platform } from 'react-native';
 
 export default function SingUp({ navigation }) {
 
@@ -32,22 +33,30 @@ export default function SingUp({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MathApp</Text>
-      <Input
-        placeholder='Correo'
-        onChangeText={value => setUser(value)}
-        textContentType={'emailAddress'}
-      />
-      <Input
-        placeholder='Contraseña'
-        onChangeText={value => setPassword(value)}
-        textContentType={'password'}
-        secureTextEntry={true}
-      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ width: '100%', flex: 1, justifyContent: 'center', display: 'flex' }}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{ width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+            <Text style={styles.title}>MathApp</Text>
+            <Input
+              placeholder='Correo'
+              onChangeText={value => setUser(value)}
+              textContentType={'emailAddress'}
+            />
+            <Input
+              placeholder='Contraseña'
+              onChangeText={value => setPassword(value)}
+              textContentType={'password'}
+              secureTextEntry={true}
+            />
 
-      <TouchableOpacity onPress={createUser} style={styles.button} >
-        <Text style={styles.buttonText}>Crear Usuario</Text>
-      </TouchableOpacity>
+            <TouchableOpacity onPress={createUser} style={styles.button} >
+              <Text style={styles.buttonText}>Crear Usuario</Text>
+            </TouchableOpacity></View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
       <StatusBar style="auto" />
     </View>
   );
