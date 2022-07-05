@@ -13,14 +13,13 @@ import { firebaseConfig } from './key';
 import SingUp from './pages/SignUp';
 import Tops from './pages/Tops';
 import LogOut from './components/Logout';
-import { Text } from 'react-native';
+import Menu from './pages/Menu';
+import ShowInstruccions from './pages/ShowInstrucctions';
 
 initializeApp(firebaseConfig);
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-
-
 
 function App() {
   function Home() {
@@ -53,8 +52,8 @@ function App() {
       <Stack.Navigator initialRouteName='Welcome'>
         <Stack.Screen name="Welcome" component={Welcome} />
         <Stack.Screen name="Question" component={Question} />
-        <Stack.Screen name="Menu" component={Menu} />
         <Stack.Screen name="SingUp" component={SingUp} />
+        <Stack.Screen name="Animation" component={ShowInstruccions} />
         <Stack.Screen name="Home" options={() => ({
           headerShown: false
         })} component={Home} />

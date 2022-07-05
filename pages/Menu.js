@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, View, FlatList, StyleSheet, Text, StatusBar, Button } from 'react-native';
+import { SafeAreaView, View, FlatList, StyleSheet, Text, StatusBar, Button, TouchableOpacity } from 'react-native';
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import { getAuth } from 'firebase/auth';
 import { useFocusEffect } from '@react-navigation/native';
@@ -12,10 +12,17 @@ export default function Menu({ navigation }) {
 
 
     async function getLevels() {
+        const factor =
+            [
+                'Factor comun',
+                'ab+2bc = b(a+2c)',
+                '2abc+2bc = 2bc(a+1)'
+            ]
+
         const document = doc(db, 'levels/b0UMrsGPjuZyBtI3ha1p/')
         const docSnap = await getDoc(document);
         if (docSnap.exists()) {
-            setLevels(docSnap.data().levels)
+            setLevels([{ learn: factor },...docSnap.data().levels])
         } else {
             console.log("No such document!");
         }
@@ -31,17 +38,22 @@ export default function Menu({ navigation }) {
         }
     }
 
-    
+
     useFocusEffect(
         useCallback(() => {
             getUser()
             getLevels()
         }, [])
-      )
+    )
 
     const Item = ({ item }) => {
         const { problem, level, color } = item
-        return <View style={[styles.item, { backgroundColor: color, opacity: item.id >= user.currentLevel ? 1:0.3 }]}>
+        if (!item.problem) {
+            return <TouchableOpacity style={styles.learn} onPress={() => navigation.push('Animation', item.learn)}>
+                <Text style={styles.subtitle}>Aprende {item.learn[0]}</Text>
+            </TouchableOpacity>
+        }
+        return <View style={[styles.item, { backgroundColor: color, opacity: item.id >= user.currentLevel ? 1 : 0.3 }]}>
             <View>
                 <Text style={styles.title}>{problem}</Text>
                 <Text style={styles.subtitle}>{level}</Text>
@@ -99,9 +111,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 5,
+        marginTop:20,
         alignSelf: 'flex-end'
     },
     buttonText: {
         fontSize: 20,
+    },
+    learn: {
+        padding: 20,
+        backgroundColor: 'black',
+        marginVertical: 8,
+        borderRadius: 5
     }
 })
