@@ -12,17 +12,10 @@ export default function Menu({ navigation }) {
 
 
     async function getLevels() {
-        const factor =
-            [
-                'Factor comun',
-                'ab+2bc = b(a+2c)',
-                '2abc+2bc = 2bc(a+1)'
-            ]
-
         const document = doc(db, 'levels/b0UMrsGPjuZyBtI3ha1p/')
         const docSnap = await getDoc(document);
         if (docSnap.exists()) {
-            setLevels([{ learn: factor },...docSnap.data().levels])
+            setLevels(docSnap.data().levels)
         } else {
             console.log("No such document!");
         }
@@ -50,15 +43,15 @@ export default function Menu({ navigation }) {
         const { problem, level, color } = item
         if (!item.problem) {
             return <TouchableOpacity style={styles.learn} onPress={() => navigation.push('Animation', item.learn)}>
-                <Text style={styles.subtitle}>Aprende {item.learn[0]}</Text>
+                <Text style={{fontSize:20}}>Aprende {item.learn[0]}</Text>
             </TouchableOpacity>
         }
-        return <View style={[styles.item, { backgroundColor: color, opacity: item.id >= user.currentLevel ? 1 : 0.3 }]}>
+        return <View style={[styles.item, { backgroundColor: color, opacity: item.id == user.currentLevel ? 1 : 0.3 }]}>
             <View>
                 <Text style={styles.title}>{problem}</Text>
                 <Text style={styles.subtitle}>{level}</Text>
             </View>
-            {item.id >= user.currentLevel &&
+            {item.id == user.currentLevel &&
                 <View style={styles.button}>
                     <Button title='Jugar' color='black' onPress={() => navigation.push('Question', item)} style={styles.buttonText}>Jugar</Button>
                 </View>
@@ -119,7 +112,7 @@ const styles = StyleSheet.create({
     },
     learn: {
         padding: 20,
-        backgroundColor: 'black',
+        backgroundColor: '#CACFD2',
         marginVertical: 8,
         borderRadius: 5
     }

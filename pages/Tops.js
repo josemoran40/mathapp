@@ -28,8 +28,8 @@ export default function Tops() {
 
     const Item = ({ item }) => {
         return <View style={styles.item}>
-            <Text>{item.email}</Text>
-            <Text>{item.score}</Text>
+            <Text style={styles.email}>{item.email}</Text>
+            <Text style={styles.score}>{item.score}</Text>
         </View>
     }
 
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'space-between',
         borderRadius: 5,
-        backgroundColor: '#FCFF76',
+        backgroundColor: '#CACFD2',
         marginVertical: 3,
         width: '100%',
         display: 'flex',
@@ -94,5 +94,11 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         fontSize: 20,
+    },
+    email:{
+        fontSize:18
+    },
+    score:{
+        fontWeight:'bold'
     }
 });

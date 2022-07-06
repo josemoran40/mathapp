@@ -35,7 +35,7 @@ export default class TextAnimator extends React.Component {
                 if (this.props.onFinish) {
                     this.props.onFinish();
                 }
-            }, 5000);
+            }, 2000);
         }
         );
     };
