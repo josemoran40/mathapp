@@ -1,12 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { getAuth } from "firebase/auth";
-import {
-  doc,
-  getDoc,
-  getFirestore,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet, Text, View, Alert, TouchableOpacity } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
@@ -15,10 +9,11 @@ import PrimaryModal from "../components/Modals/PrimaryModal";
 
 export default function Question({ route, navigation }) {
   const question = route.params;
-  const initialTime = 20;
+  const initialTime = 60;
   const [time, setTime] = useState(initialTime);
   const [user, setUser] = useState(null);
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [currentClue, setCurrentClue] = useState(0);
   const timerRef = useRef(time);
   const db = getFirestore();
   const auth = getAuth();
@@ -80,8 +75,8 @@ export default function Question({ route, navigation }) {
         size={200}
         width={20}
         fill={(time * 100) / initialTime}
-        tintColor={question.color}
-        backgroundColor="black"
+        tintColor={"#A569BD"}
+        backgroundColor="rgba(0,0,0,0.3)"
       >
         {(fill) => (
           <View>
@@ -94,7 +89,18 @@ export default function Question({ route, navigation }) {
         <Text style={styles.title}>{question.problem}</Text>
       </View>
       <View style={styles.clueModal}>
-        <LightBulb onPress={() => Alert.alert("working")} />
+        <TouchableOpacity
+          onPress={() => {
+            if (currentClue < question.clues.length) setShowModal(true);
+          }}
+        >
+          <LightBulb />
+          <View style={styles.clueNumberContainer}>
+            <Text style={styles.clueNumberText}>
+              {question.clues.length - currentClue}
+            </Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <View>
         <View style={styles.flex}>
@@ -126,7 +132,16 @@ export default function Question({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      <PrimaryModal title="Hola" show={showModal} setShow={setShowModal} />
+      <PrimaryModal
+        title={question.clues[currentClue]}
+        show={showModal}
+        onClose={() => {
+          setShowModal(false);
+          if (currentClue < question.clues.length)
+            setCurrentClue(currentClue + 1);
+        }}
+        closeText={"Siguiente"}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -143,16 +158,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     backgroundColor: "white",
     position: "relative",
-  },
-  elipse: {
-    width: "100%",
-    borderRadius: 1750,
-    height: 400,
-    top: -200,
-    backgroundColor: "#FCFF76",
-    position: "absolute",
-    display: "flex",
-    alignItems: "flex-end",
   },
   button: {
     width: "50%",
@@ -204,9 +209,24 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   clueModal: {
-    width: "100%",
     display: "flex",
     alignItems: "center",
-    paddingLeft: 20,
+    position: "relative",
+  },
+  clueNumberText: {
+    color: "white",
+  },
+  clueNumberContainer: {
+    padding: 5,
+    backgroundColor: "black",
+    position: "absolute",
+    top: -10,
+    right: -10,
+    borderRadius: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 25,
+    minHeight: 25,
   },
 });

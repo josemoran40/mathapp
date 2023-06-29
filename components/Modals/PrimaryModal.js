@@ -1,17 +1,18 @@
 import { StyleSheet, View, Text, Dimensions } from "react-native";
-export default function PrimaryModal({ title, show, setShow }) {
+export default function PrimaryModal({ title, show, closeText, onClose }) {
   const closeModal = () => {
-    setShow(false);
+    onClose();
   };
   return (
     <View style={[styles.container, show ? {} : styles.containerClose]}>
       <View style={styles.box}>
-        <View>
-          <Text>{title}</Text>
-          <Text>{title}</Text>
+        <View style={styles.textContainer}>
+          <Text style={styles.text}>{title}</Text>
         </View>
-        <View>
-          <Text onPress={closeModal}>Listo</Text>
+        <View style={styles.buttonContainer}>
+          <Text style={styles.button} onPress={closeModal}>
+            {closeText}
+          </Text>
         </View>
       </View>
     </View>
@@ -42,5 +43,25 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     minHeight: 200,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    gap: 30,
+  },
+  textContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  buttonContainer: {
+    width: "auto",
+  },
+  button: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  text: {
+    fontSize: 16,
   },
 });
