@@ -23,9 +23,9 @@ export default function Question({ route, navigation }) {
       timerRef.current -= 1;
       if (timerRef.current < 0) {
         clearInterval(timerId);
-        // Alert.alert('Se ha aabado el tiempo! 🙊', 'Intentalo de nuevo', [
-        //     { text: "OK", onPress: () => navigation.pop() }
-        // ])
+        Alert.alert("Se ha aabado el tiempo! 🙊", "Intentalo de nuevo", [
+          { text: "OK", onPress: () => navigation.pop() },
+        ]);
       } else {
         setTime(timerRef.current);
       }
@@ -64,9 +64,27 @@ export default function Question({ route, navigation }) {
 
   async function setLevelAndScore() {
     const document = doc(db, "users/" + auth.currentUser.uid);
+    const score =
+      user.classes.filter((item) => item.class == question.classUid)[0].score ||
+      0;
+
+    const removeClass = user.classes.filter(
+      (item) => item.class !== question.classUid
+    );
+
+    const cluesPercentage = currentClue * 0.25;
+    const questionScore = (time * 100) / initialTime;
+    const penalty = cluesPercentage * questionScore;
+
     await updateDoc(document, {
-      score: user.score + (time * 100) / initialTime,
-      currentLevel: question.id + 1,
+      classes: [
+        ...removeClass,
+        {
+          class: question.classUid,
+          level: question.indexLevel + 1,
+          score: score + questionScore - penalty,
+        },
+      ],
     });
   }
   return (

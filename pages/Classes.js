@@ -1,36 +1,46 @@
 import React, { useCallback, useState } from "react";
 import {
   SafeAreaView,
-  View,
   FlatList,
   StyleSheet,
   Text,
   StatusBar,
   TouchableOpacity,
-  Button,
 } from "react-native";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  query,
+  getDocs,
+} from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useFocusEffect } from "@react-navigation/native";
 
-export default function Menu({ route, navigation }) {
-  const levels = route.params.levels;
-  const classUid = route.params.uid;
-  const explanation = route.params.explanation;
+export default function Classes({ navigation }) {
+  const [classes, setClasses] = useState([]);
   const [user, setUser] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
-  const [currentLevel, setCurrentLevel] = useState(null);
+
+  async function getClasses() {
+    const collectionRef = await collection(db, "class");
+    const q = query(collectionRef);
+    const querySnapshot = await getDocs(q);
+    const classes_ = [];
+    querySnapshot.forEach((doc) => {
+      classes_.push({ ...doc.data(), uid: doc.id });
+    });
+
+    setClasses(classes_);
+  }
 
   async function getUser() {
     const document = doc(db, "users/", auth.currentUser.uid);
     const docSnap = await getDoc(document);
     if (docSnap.exists()) {
       setUser(docSnap.data());
-      const classes_ = docSnap.data().classes;
-      const class_ = classes_.filter((item) => item.class === classUid)[0] || 0;
-      setCurrentLevel(class_.level);
-      console.log(class_.level);
     } else {
       console.log("No such document!");
     }
@@ -39,59 +49,27 @@ export default function Menu({ route, navigation }) {
   useFocusEffect(
     useCallback(() => {
       getUser();
+      getClasses();
     }, [])
   );
 
   const Item = ({ item, index }) => {
-    const { problem, level, color } = item;
-    return (
-      <View
-        style={[
-          styles.item,
-          {
-            backgroundColor: color,
-            opacity: index == currentLevel ? 1 : 0.3,
-          },
-        ]}
-      >
-        <View>
-          <Text style={styles.title}>{problem}</Text>
-          <Text style={styles.subtitle}>{level}</Text>
-        </View>
-
-        {index == currentLevel && (
-          <View style={styles.button}>
-            <Button
-              title="Jugar"
-              color="black"
-              onPress={() =>
-                navigation.push("Question", {
-                  ...item,
-                  classUid,
-                  indexLevel: index,
-                })
-              }
-              style={styles.buttonText}
-            >
-              Jugar
-            </Button>
-          </View>
-        )}
-      </View>
-    );
+    if (item) {
+      return (
+        <TouchableOpacity
+          style={styles.learn}
+          onPress={() => navigation.push("Levels", item)}
+        >
+          <Text style={{ fontSize: 20 }}>{item.class}</Text>
+        </TouchableOpacity>
+      );
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.button, styles.explanation]}>
-        <TouchableOpacity
-          onPress={() => navigation.push("Animation", explanation)}
-        >
-          <Text style={styles.buttonText}>Explicación</Text>
-        </TouchableOpacity>
-      </View>
       <FlatList
-        data={levels}
+        data={classes}
         renderItem={Item}
         keyExtractor={(item) => item.uid}
         initialScrollIndex={0}
@@ -144,10 +122,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#CACFD2",
     marginVertical: 8,
     borderRadius: 5,
-  },
-  explanation: {
-    width: "100%",
-    marginBottom: 8,
-    paddingVertical: 10,
   },
 });
