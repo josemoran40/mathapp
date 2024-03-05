@@ -64,9 +64,13 @@ export default function Question({ route, navigation }) {
 
   async function setLevelAndScore() {
     const document = doc(db, "users/" + auth.currentUser.uid);
-    const score =
-      user.classes.filter((item) => item.class == question.classUid)[0].score ||
-      0;
+    const currentClass = user.classes.filter(
+      (item) => item.class == question.classUid
+    );
+
+    console.log("currentClass", currentClass);
+
+    const score = currentClass[0].score ? currentClass[0].score : 0;
 
     const removeClass = user.classes.filter(
       (item) => item.class !== question.classUid
@@ -75,7 +79,13 @@ export default function Question({ route, navigation }) {
     const cluesPercentage = currentClue * 0.25;
     const questionScore = (time * 100) / initialTime;
     const penalty = cluesPercentage * questionScore;
-
+    console.log(
+      "score",
+      score,
+      questionScore,
+      penalty,
+      score + questionScore - penalty
+    );
     await updateDoc(document, {
       classes: [
         ...removeClass,

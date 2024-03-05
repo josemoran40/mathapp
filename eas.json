@@ -2,7 +2,15 @@
   "build": {
     "preview": {
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_KEY": "AIzaSyDyKt43jsQ79QS68xmxF7c5d9v3goOeFtU",
+        "EXPO_PUBLIC_AUTH_DOMAIN": "mathapp2-e7c04.firebaseapp.com",
+        "EXPO_PUBLIC_PROJECT_ID": "mathapp2-e7c04",
+        "EXPO_PUBLIC_STORAGE_BUCKET": "mathapp2-e7c04.appspot.com",
+        "EXPO_PUBLIC_MESSAGING_SENDER_ID": "385985438793",
+        "EXPO_PUBLIC_APP_ID": "1:385985438793:web:40c9007d50e98cd8f78b98"
       }
     },
     "preview2": {

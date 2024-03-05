@@ -58,7 +58,7 @@ export default function SingUp({ navigation }) {
               display: "flex",
             }}
           >
-            <Text style={styles.title}>MathApp</Text>
+            <Text style={styles.title}>FactorXpert</Text>
             <Input
               placeholder="Correo"
               onChangeText={(value) => setUser(value)}

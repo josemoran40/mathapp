@@ -41,15 +41,6 @@ function App() {
             tabBarIcon: () => <Text>🧩</Text>,
           })}
         />
-        <Tab.Screen
-          name="Tops"
-          component={Tops}
-          options={({ navigation, route }) => ({
-            headerRight: (props) => <LogOut navigation={navigation} />,
-            headerBackVisible: false,
-            tabBarIcon: () => <Text>🔝</Text>,
-          })}
-        />
       </Tab.Navigator>
     );
   }

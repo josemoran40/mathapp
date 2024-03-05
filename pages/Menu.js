@@ -29,7 +29,7 @@ export default function Menu({ route, navigation }) {
       setUser(docSnap.data());
       const classes_ = docSnap.data().classes;
       const class_ = classes_.filter((item) => item.class === classUid)[0] || 0;
-      setCurrentLevel(class_.level);
+      setCurrentLevel(class_.level || 0);
       console.log(class_.level);
     } else {
       console.log("No such document!");
