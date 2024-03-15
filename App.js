@@ -15,6 +15,8 @@ import LogOut from "./components/Logout";
 import Menu from "./pages/Menu";
 import ShowInstruccions from "./pages/ShowInstrucctions";
 import Classes from "./pages/Classes";
+import GoTo from "./components/GoTo";
+import { ContextProvider } from "./components/Context";
 
 initializeApp({
   apiKey: process.env.EXPO_PUBLIC_API_KEY,
@@ -29,39 +31,34 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function App() {
-  function Home() {
-    return (
-      <Tab.Navigator>
-        <Tab.Screen
-          name="Menu"
-          component={Classes}
-          options={({ navigation, route }) => ({
-            headerRight: (props) => <LogOut navigation={navigation} />,
-            headerBackVisible: false,
-            tabBarIcon: () => <Text>🧩</Text>,
-          })}
-        />
-      </Tab.Navigator>
-    );
-  }
-
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
-        <Stack.Screen name="Welcome" component={Welcome} />
-        <Stack.Screen name="Question" component={Question} />
-        <Stack.Screen name="SingUp" component={SingUp} />
-        <Stack.Screen name="Animation" component={ShowInstruccions} />
-        <Stack.Screen name="Levels" component={Menu} />
-        <Stack.Screen
-          name="Home"
-          options={() => ({
-            headerShown: false,
-          })}
-          component={Home}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ContextProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Welcome">
+          <Stack.Screen name="Welcome" component={Welcome} />
+          <Stack.Screen name="Question" component={Question} />
+          <Stack.Screen name="SingUp" component={SingUp} />
+          <Stack.Screen name="Animation" component={ShowInstruccions} />
+          <Stack.Screen
+            name="Levels"
+            component={Menu}
+            options={({ navigation, route }) => ({
+              headerRight: (props) => (
+                <GoTo navigation={navigation} path={"Tops"} text={"Tops"} />
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="Classes"
+            component={Classes}
+            options={({ navigation, route }) => ({
+              headerRight: (props) => <LogOut navigation={navigation} />,
+            })}
+          />
+          <Tab.Screen name="Tops" component={Tops} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </ContextProvider>
   );
 }
 

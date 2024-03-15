@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -17,12 +17,14 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { useFocusEffect } from "@react-navigation/native";
+import { mainContext } from "../components/Context";
 
 export default function Classes({ navigation }) {
   const [classes, setClasses] = useState([]);
   const [user, setUser] = useState([]);
   const db = getFirestore();
   const auth = getAuth();
+  const { setCurrentClass } = useContext(mainContext);
 
   async function getClasses() {
     const collectionRef = await collection(db, "class");
@@ -58,7 +60,10 @@ export default function Classes({ navigation }) {
       return (
         <TouchableOpacity
           style={styles.learn}
-          onPress={() => navigation.push("Levels", item)}
+          onPress={() => {
+            setCurrentClass(item);
+            navigation.push("Levels", item);
+          }}
         >
           <Text style={{ fontSize: 20 }}>{item.class}</Text>
         </TouchableOpacity>
@@ -82,7 +87,6 @@ export default function Classes({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: StatusBar.currentHeight,
     marginHorizontal: 16,
   },
   item: {

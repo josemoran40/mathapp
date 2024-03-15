@@ -1,8 +1,12 @@
 {
+  "cli": {
+    "appVersionSource": "remote"
+  },
   "build": {
     "preview": {
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "autoIncrement": true
       },
       "env": {
         "EXPO_PUBLIC_API_KEY": "AIzaSyDyKt43jsQ79QS68xmxF7c5d9v3goOeFtU",

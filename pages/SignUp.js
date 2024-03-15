@@ -27,7 +27,6 @@ export default function SingUp({ navigation }) {
         const document = doc(db, "users/" + res.user.uid);
         await setDoc(document, {
           email: user,
-          password: password,
           classes: [],
         });
         Alert.alert("Usuario creado! 🙌", "", [

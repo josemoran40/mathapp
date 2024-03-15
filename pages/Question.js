@@ -70,7 +70,8 @@ export default function Question({ route, navigation }) {
 
     console.log("currentClass", currentClass);
 
-    const score = currentClass[0].score ? currentClass[0].score : 0;
+    const score =
+      currentClass[0] && currentClass[0].score ? currentClass[0].score : 0;
 
     const removeClass = user.classes.filter(
       (item) => item.class !== question.classUid
@@ -79,13 +80,7 @@ export default function Question({ route, navigation }) {
     const cluesPercentage = currentClue * 0.25;
     const questionScore = (time * 100) / initialTime;
     const penalty = cluesPercentage * questionScore;
-    console.log(
-      "score",
-      score,
-      questionScore,
-      penalty,
-      score + questionScore - penalty
-    );
+
     await updateDoc(document, {
       classes: [
         ...removeClass,
@@ -250,7 +245,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: -10,
     right: -10,
-    borderRadius: "100%",
+    borderRadius: 100,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   Image,
   Alert,
   TouchableOpacity,
@@ -13,22 +12,26 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { Input } from "react-native-elements";
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { useEffect, useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useContext, useState } from "react";
+import { mainContext } from "../components/Context";
 
 export default function Welcome({ navigation }) {
   const [user, setUser] = useState(null);
   const [password, setPassword] = useState(null);
+  const { setCurrentUser } = useContext(mainContext);
   const auth = getAuth();
 
   function singIn() {
     signInWithEmailAndPassword(auth, user, password)
-      .then((res) => navigation.push("Home"))
-      .catch((error) => console.log("error", error));
+      .then((res) => {
+        setCurrentUser(user);
+        navigation.push("Classes");
+      })
+      .catch((error) => {
+        console.log(error);
+        Alert.alert("Error", "Usuario o contraseña incorrecta");
+      });
   }
 
   return (
@@ -80,7 +83,7 @@ export default function Welcome({ navigation }) {
               style={styles.singUpButton}
               onPress={() => navigation.push("SingUp")}
             >
-              Registrase
+              Registrarse
             </Text>
           </View>
         </TouchableWithoutFeedback>
